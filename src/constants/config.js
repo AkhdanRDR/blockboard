@@ -1,10 +1,10 @@
-export const DIFFICULTY_TARGET = "0000";
+export const DIFFICULTY_TARGET = "0";
 export const MINE_INTERVAL = 100;
 export const GENESIS_BLOCK = {
-    index: 0, // posisi pertama
-    timestamp: Date.now(), // waktu buat genesis block
-    data: "Genesis Block", // isi data pertama
-    nonce: 0, // angka awal buat mining
-    hash: "", // hasil hash dari block ini
-    previousHash: "0", // karena belum ada block sebelumnya
+  index: 0, // first position
+  timestamp: Date.now(), // time to create genesis block
+  data: "Genesis Block", // first data entry
+  nonce: 0, // first number for mining
+  hash: "", // hash return from this block
+  previousHash: "0", // because there isn't previous block
 };
