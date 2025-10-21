@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createBlock } from "../utils/blockUtils";
 import { mineBlock as mineBlockUtil } from "../utils/miningUtils";
 import { calculateHash } from "../utils/hashUtils";
+import { GENESIS_BLOCK } from "../constants/config";
 
 export function useBlockchain() {
   const [blockchain, setBlockchain] = useState([]);
@@ -65,6 +66,39 @@ export function useBlockchain() {
     return { valid: true, message: "Blockchain is valid" };
   }
 
+  function editBlock(index, newData) {
+    if (!tamperMode) {
+      console.log("Editing disabled, tamper mode off");
+      return;
+    }
+
+    let newChain = structuredClone(blockchain);
+    let targetBlock = newChain[index];
+    targetBlock.data = newData;
+
+    const recalculatedHash = calculateHash(
+      targetBlock.index,
+      targetBlock.timestamp,
+      targetBlock.data,
+      targetBlock.nonce,
+      targetBlock.previousHash
+    );
+    targetBlock.hash = recalculatedHash;
+
+    for (let i = index + 1; i < newChain.length; i++) {
+      newChain[i].previousHash = newChain[i - 1].hash;
+      newChain[i].hash = calculateHash(
+        newChain[i].index,
+        newChain[i].timestamp,
+        newChain[i].data,
+        newChain[i].nonce,
+        newChain[i].previousHash
+      );
+    }
+
+    setBlockchain(newChain);
+  }
+
   function exportChain() {
     return JSON.stringify(blockchain);
   }
@@ -88,6 +122,12 @@ export function useBlockchain() {
     }
   }
 
+  function resetChain() {
+    setBlockchain([GENESIS_BLOCK]);
+    setMiningProgress(0);
+    setValidationResult(null);
+  }
+
   return {
     blockchain,
     isMining,
@@ -97,7 +137,9 @@ export function useBlockchain() {
     addBlock,
     mineBlock,
     validateChain,
+    editBlock,
     exportChain,
     importChain,
+    resetChain,
   };
 }
