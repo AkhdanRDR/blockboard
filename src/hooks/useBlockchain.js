@@ -11,6 +11,10 @@ export function useBlockchain() {
   const [validationResult, setValidationResult] = useState(null);
   const [tamperMode, setTamperMode] = useState(false);
 
+  useEffect(() => {
+    if (blockchain.length === 0) setBlockchain([GENESIS_BLOCK]);
+  }, []);
+
   async function addBlock(data, autoMine = true) {
     let lastBlock = blockchain[blockchain.length - 1];
     let newBlock = createBlock(lastBlock.index + 1, data, lastBlock.hash);
@@ -30,9 +34,6 @@ export function useBlockchain() {
     setIsMining(true);
     let targetBlock = blockchain[blockIndex];
     const minedBlock = mineBlockUtil(targetBlock, difficulty);
-
-    const newChain = [...blockchain];
-    newChain[blockIndex] = minedBlock;
 
     setBlockchain((prevChain) => {
       const newChain = [...prevChain];
@@ -63,6 +64,7 @@ export function useBlockchain() {
         return { valid: false, message: "Hash invalid at block " + i };
       }
     }
+    setValidationResult({ valid: true, message: "Blockchain is valid" });
     return { valid: true, message: "Blockchain is valid" };
   }
 
@@ -130,10 +132,15 @@ export function useBlockchain() {
 
   return {
     blockchain,
+    setBlockchain,
     isMining,
+    setIsMining,
     miningProgress,
+    setMiningProgress,
     validationResult,
+    setValidationResult,
     tamperMode,
+    setTamperMode,
     addBlock,
     mineBlock,
     validateChain,
